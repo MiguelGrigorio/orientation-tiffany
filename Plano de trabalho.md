@@ -1,4 +1,4 @@
-# Sistema para estimar orientação de um robô a patas a partir de imagens
+<h1>Sistema para estimar orientação de um robô a patas a partir de imagens</h1>
 
 <h2>Cronograma</h2>
 
