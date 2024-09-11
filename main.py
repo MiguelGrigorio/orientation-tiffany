@@ -1,17 +1,9 @@
 import cv2
 import numpy as np
 
-def rotate_image(imagem, direcao = "norte"):
-    if direcao == "norte":
-        angulo = 25
-    elif direcao == "sul":
-        angulo = 180
-    elif direcao == "leste":
-        angulo = 270
-    else:
-        angulo = 90
-    
+def rotate_image(imagem, angulo = 0):
     img = cv2.imread(imagem)
+    img = cv2.resize(img, (500, 500))
     image_center = tuple(np.array(img.shape[1::-1]) / 2)
     rot_mat = cv2.getRotationMatrix2D(image_center, angulo, 1.0)
     result = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
@@ -28,45 +20,43 @@ def detectar_orientacao(imagem, cor, direcao = "norte"):
     upper = cor[1]
 
     mask = cv2.inRange(rgb, lower, upper)
-    #mask = cv2.bitwise_not(mask)
     # Remove outliers
-    mask = cv2.medianBlur(mask, 5)
-    cv2.imshow("Mask", mask)
+    mask = cv2.medianBlur(mask, 7)
+    cv2.imshow("mask", mask)
     cv2.waitKey(0)
+
     # [Altura, Largura]
     norte = mask[0:mask.shape[0]//2, 0:mask.shape[1]]
     sul = mask[mask.shape[0]//2:mask.shape[0], 0:mask.shape[1]]
     leste = mask[0:mask.shape[0], mask.shape[1]//2:mask.shape[1]]
     oeste = mask[0:mask.shape[0], 0:mask.shape[1]//2]
+    nordeste = mask[0:mask.shape[0]//2, mask.shape[1]//2:mask.shape[1]]
+    sudeste = mask[mask.shape[0]//2:mask.shape[0], mask.shape[1]//2:mask.shape[1]]
+    sudoeste = mask[mask.shape[0]//2:mask.shape[0], 0:mask.shape[1]//2]
+    noroeste = mask[0:mask.shape[0]//2, 0:mask.shape[1]//2]
 
-    total = cv2.countNonZero(mask)
-    norte = cv2.countNonZero(norte) / total
-    sul = cv2.countNonZero(sul) / total
-    leste = cv2.countNonZero(leste) / total
-    oeste = cv2.countNonZero(oeste) / total
-    nordeste = (norte + leste) / 2*total
-    sudeste = (sul + leste) / 2*total
-    sudoeste = (sul + oeste) / 2*total
-    noroeste = (norte + oeste) / 2*total
+    norte = (np.count_nonzero(norte == 255) / norte.size) * 100
+    sul = (np.count_nonzero(sul == 255) / sul.size) * 100
+    leste = (np.count_nonzero(leste == 255) / leste.size) * 100
+    oeste = (np.count_nonzero(oeste == 255) / oeste.size) * 100
+    nordeste = (np.count_nonzero(nordeste == 255) / nordeste.size) * 100
+    sudeste = (np.count_nonzero(sudeste == 255) / sudeste.size) * 100
+    sudoeste = (np.count_nonzero(sudoeste == 255) / sudoeste.size) * 100
+    noroeste = (np.count_nonzero(noroeste == 255) / noroeste.size) * 100
 
-    orientacao = max(norte, sul, leste, oeste, nordeste, sudeste, sudoeste, noroeste)
+    direcoes = {
+        "norte": norte,
+        "sul": sul,
+        "leste": leste,
+        "oeste": oeste,
+        "nordeste": nordeste,
+        "sudeste": sudeste,
+        "sudoeste": sudoeste,
+        "noroeste": noroeste
+    }
+    orientacao = max(direcoes, key=direcoes.get)
 
-    if orientacao == norte:
-        print("Norte") 
-    elif orientacao == sul:
-        print("Sul")
-    elif orientacao == leste:
-        print("Leste")
-    elif orientacao == oeste:
-        print("Oeste")
-    elif orientacao == nordeste:
-        print("Nordeste")
-    elif orientacao == sudeste:
-        print("Sudeste")
-    elif orientacao == sudoeste:
-        print("Sudoeste")
-    else:
-        print("Noroeste")
+    print(orientacao)
 
 # Testando
 imagem = "image.png"
@@ -74,4 +64,4 @@ color = (171, 48, 51)
 
 cor = [tuple([0.75*x for x in color]), tuple([1.25*x for x in color])]
 
-detectar_orientacao(imagem, cor)
+detectar_orientacao(imagem, cor, 0)
