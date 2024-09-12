@@ -18,37 +18,6 @@ def orient_by_color(image, target_color):
     # Remover outliers
     mask = cv2.medianBlur(mask, 7)
 
-    # [Altura, Largura]
-    norte = mask[0:mask.shape[0]//2, 0:mask.shape[1]]
-    sul = mask[mask.shape[0]//2:mask.shape[0], 0:mask.shape[1]]
-    leste = mask[0:mask.shape[0], mask.shape[1]//2:mask.shape[1]]
-    oeste = mask[0:mask.shape[0], 0:mask.shape[1]//2]
-    nordeste = mask[0:mask.shape[0]//2, mask.shape[1]//2:mask.shape[1]]
-    sudeste = mask[mask.shape[0]//2:mask.shape[0], mask.shape[1]//2:mask.shape[1]]
-    sudoeste = mask[mask.shape[0]//2:mask.shape[0], 0:mask.shape[1]//2]
-    noroeste = mask[0:mask.shape[0]//2, 0:mask.shape[1]//2]
-
-    norte = (np.count_nonzero(norte == 255) / norte.size) * 100
-    sul = (np.count_nonzero(sul == 255) / sul.size) * 100
-    leste = (np.count_nonzero(leste == 255) / leste.size) * 100
-    oeste = (np.count_nonzero(oeste == 255) / oeste.size) * 100
-    nordeste = (np.count_nonzero(nordeste == 255) / nordeste.size) * 100
-    sudeste = (np.count_nonzero(sudeste == 255) / sudeste.size) * 100
-    sudoeste = (np.count_nonzero(sudoeste == 255) / sudoeste.size) * 100
-    noroeste = (np.count_nonzero(noroeste == 255) / noroeste.size) * 100
-
-    direcoes = {
-        "norte": norte,
-        "sul": sul,
-        "leste": leste,
-        "oeste": oeste,
-        "nordeste": nordeste,
-        "sudeste": sudeste,
-        "sudoeste": sudoeste,
-        "noroeste": noroeste
-    }
-    orientacao = max(direcoes, key=direcoes.get)
-    print(direcoes)
     # Encontrar os contornos dos objetos na máscara
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -63,7 +32,18 @@ def orient_by_color(image, target_color):
             cy = int(M["m01"] / M["m00"])
         else:
             cx, cy = 0, 0
-
+        # Determinar o quadrante
+        center_x = width // 2
+        center_y = height // 2
+        if cx > center_x and cy <= center_y:
+            quadrante = 1
+        elif cx <= center_x and cy < center_y:
+            quadrante = 2
+        elif cx < center_x and cy >= center_y:
+            quadrante = 3   
+        elif cx >= center_x and cy > center_y:
+            quadrante = 4
+    
         # Encontrar o retângulo que envolve o contorno
         rect = cv2.minAreaRect(contour)
         box = cv2.boxPoints(rect)
@@ -76,7 +56,7 @@ def orient_by_color(image, target_color):
         else:
             x_axis = np.array([box[2][0] - box[1][0], box[2][1] - box[1][1]])
             y_axis = np.array([box[1][0] - box[0][0], box[1][1] - box[0][1]])
-
+        
         # Normalizar os vetores
         x_axis = x_axis / np.linalg.norm(x_axis)
         y_axis = y_axis / np.linalg.norm(y_axis)
@@ -90,28 +70,14 @@ def orient_by_color(image, target_color):
         # Calcular o ângulo entre o vetor do eixo x local e o vetor do eixo x global utilizando produto escalar
         angle = np.arccos(np.dot(x_axis, x_global))
         
-
-        # Desenhar o eixo x local no centro do contorno
-        cv2.line(image, (cx, cy), (cx + int(x_axis[0] * 50), cy + int(x_axis[1] * 50)), (0, 255, 0), 2)
-        
-        # Desenhar o eixo y local no centro do contorno
-        cv2.line(image, (cx, cy), (cx + int(y_axis[0] * 50), cy + int(y_axis[1] * 50)), (255, 0, 0), 2)
-
-        # Mostrar a imagem
-        cv2.imshow("Image", image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-        print(f"O ângulo é: {math.degrees(angle)} graus")
-        print(f"A orientação é: {orientacao}")
-        if orientacao == "noroeste":
-            return math.degrees(angle + math.pi/2)
-        elif orientacao == "sul" or orientacao == "sudeste":
-            return math.degrees(angle + 3*math.pi/2)
-        elif orientacao == "leste" or orientacao == "nordeste":
+        if quadrante == 1:
             return math.degrees(angle)
-        elif orientacao == "oeste" or orientacao == "sudoeste":
-            return math.degrees(angle + math.pi)        
+        elif quadrante == 2:
+            return math.degrees(math.pi - angle)
+        elif quadrante == 3:
+            return math.degrees(math.pi + angle)
+        elif quadrante == 4:
+            return math.degrees(2*math.pi - angle)
 
     else:
         raise ValueError("Nenhum contorno encontrado.")
@@ -127,14 +93,23 @@ def rotate_image(imagem, angulo=0):
 
 # Exemplo de uso
 image_path = 'image.png'
-rotation = 0
-rotate = rotate_image(image_path, rotation)
 rgb = (171, 48, 51)
 
 target_color = rgb
 
-try:
-    angle = orient_by_color(rotate, target_color)
-    print(f"A orientação é: {angle} graus")
-except ValueError as e:
-    print(e)
+
+erros = []
+for rotation in range(0, 180):
+    rotate = rotate_image(image_path, rotation)
+    try:
+        angle = orient_by_color(rotate, target_color)
+        erro = abs(rotation + 90 - angle)
+        erros.append(erro)
+    except ValueError as e:
+        continue
+
+
+print(f'Erro médio: {np.mean(erros)}')
+print(f'Erro máximo: {np.max(erros)}')
+print(f'Erro mínimo: {np.min(erros)}')
+print(f'Desvio padrão: {np.std(erros)}')
