@@ -82,7 +82,7 @@ def rotate_image(imagem, angulo=0):
     return result
 
 # Imagem de exemplo
-image_path = 'image.png'
+image_path = 'src/images/tiffany-cor-teste.png'
 target_color = (171, 48, 51)
 
 # Exemplo de eixos

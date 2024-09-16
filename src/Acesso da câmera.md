@@ -27,16 +27,14 @@ class StreamChannel(Channel):
                 dropped += 1
             except socket.timeout:
                 return (msg, dropped) if return_dropped else msg
-
-
-from is_wire.core import Channel,Subscription,Message
-from is_msgs.image_pb2 import Image
-import time
-from streamChannel import StreamChannel
 ```
 <h2>Exemplo de uso</h2>
 
 ```py
+from is_wire.core import Channel,Subscription,Message
+from is_msgs.image_pb2 import Image
+import time
+from streamChannel import StreamChannel
 import numpy as np
 import cv2
 
