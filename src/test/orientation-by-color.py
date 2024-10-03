@@ -101,7 +101,7 @@ def rotate_image(imagem, angulo=0):
     return result
 
 # Imagem de exemplo
-image_path = 'test/images/removed/file1.png'
+image_path = 'src/test/images/file1.jpg'
 body_color = (103,207,200)
 point_color = (207,42,72)#(121,8,30)
 color = color(point_color, body_color, 0.65, 1.35)
