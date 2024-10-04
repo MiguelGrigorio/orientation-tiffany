@@ -36,7 +36,7 @@ def orient_by_color(image, color: dict, x_global=np.array([1, 0])):
 
         body_contours, _ = cv2.findContours(body_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         body_contour = max(body_contours, key=cv2.contourArea)
-
+        
         body_rect = cv2.minAreaRect(body_contour)
         body_box = cv2.boxPoints(body_rect)
         body_box = np.int32(body_box)
@@ -104,7 +104,7 @@ def rotate_image(imagem, angulo=0):
 image_path = 'src/test/images/file1.jpg'
 body_color = (103,207,200)
 point_color = (207,42,72)#(121,8,30)
-color = color(point_color, body_color, 0.65, 1.35)
+cor = color(point_color, body_color, 0.65, 1.35)
 
 # Exemplo de eixos
 x_global = {
@@ -131,7 +131,7 @@ def error():
     #print(f'Desvio padrão: {np.std(erros)}')
 
 #error()
-print(orient_by_color(rotate_image(image_path, 0), color, x_global["1"]))
+print(orient_by_color(rotate_image(image_path, 0), cor, x_global["1"]))
 
 # aumentar saturaçao 4
 # mudar metodo rgb 3

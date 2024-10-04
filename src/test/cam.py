@@ -31,7 +31,7 @@ def to_image(input_image, encode_format='.jpeg', compression_level=0.8):
         return Image()
     
 
-path_images = 'test/images'
+path_images = 'src/test/images/camera'
 
 if __name__ == '__main__':
     for cameraNumber in [4]:#range(1, 5):
