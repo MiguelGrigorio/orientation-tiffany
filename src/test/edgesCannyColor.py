@@ -35,10 +35,6 @@ center_body = (cX, cY)
 
 cv2.circle(image, center_body, 5, (255, 0, 0), -1)
 
-
-
-
-
 point_mask = cv2.inRange(image, cor['point']["lower"], cor['point']["upper"])
 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 point_mask = cv2.erode(point_mask, kernel, iterations=1)

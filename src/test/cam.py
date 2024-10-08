@@ -31,10 +31,12 @@ def to_image(input_image, encode_format='.jpeg', compression_level=0.8):
         return Image()
     
 
-path_images = 'src/test/images/camera'
+path_images = 'src/test/images/camera' # Pasta onde as imagens serão salvas
 
 if __name__ == '__main__':
-    for cameraNumber in [4]:#range(1, 5):
+    qnt_images = 5
+
+    for cameraNumber in [4]:#range(1, 5): # (1, 2, 3, 4) Cameras Intelbras
         print('---RUNNING CAMERA {} CLIENT---'.format(cameraNumber))
 
         broker_uri = "amqp://guest:guest@10.10.2.211:30000"
@@ -44,12 +46,12 @@ if __name__ == '__main__':
         subscription_1 = Subscription(channel=channel_1)
         subscription_1.subscribe(topic='CameraGateway.{}.Frame'.format(cameraNumber))
 
-        window_1 = 'Intelbras Camera 1'
+        window_1 = f'Intelbras Camera {cameraNumber}'
 
         i = 1
         time_1 = time.time()
 
-        while i <= 1:
+        while i <= qnt_images:
 
             msg = channel_1.consume_last()  
             if type(msg) != bool: 
@@ -61,7 +63,7 @@ if __name__ == '__main__':
             #print(time.time() - time_1)
 
             if time.time()-time_1 > 1:
-
+                
                 time_1 = time.time()
                 cv2.imwrite(f"{path_images}/image_camera{cameraNumber}_"+str(i)+".jpg", frame_1)
                 i+=1
