@@ -1,7 +1,7 @@
 from is_wire.core import Channel,Subscription,Message
 from is_msgs.image_pb2 import Image
 import time
-from utils.code.streamChannel import StreamChannel
+from streamChannel import StreamChannel
 import numpy as np
 import cv2
 
@@ -34,9 +34,9 @@ def to_image(input_image, encode_format='.jpeg', compression_level=0.8):
 path_images = 'src/test/images/camera' # Pasta onde as imagens serão salvas
 
 if __name__ == '__main__':
-    qnt_images = 5
+    qnt_images = 1
 
-    for cameraNumber in [4]:#range(1, 5): # (1, 2, 3, 4) Cameras Intelbras
+    for cameraNumber in [1, 2, 3, 4]:#range(1, 5): # (1, 2, 3, 4) Cameras Intelbras
         print('---RUNNING CAMERA {} CLIENT---'.format(cameraNumber))
 
         broker_uri = "amqp://guest:guest@10.10.2.211:30000"
@@ -65,7 +65,7 @@ if __name__ == '__main__':
             if time.time()-time_1 > 1:
                 
                 time_1 = time.time()
-                cv2.imwrite(f"{path_images}/image_camera{cameraNumber}_"+str(i)+".jpg", frame_1)
+                cv2.imwrite(f"{path_images}/camera{cameraNumber}.jpg", frame_1)
                 i+=1
             
             if cv2.waitKey(1) & 0xFF == ord('q'):
