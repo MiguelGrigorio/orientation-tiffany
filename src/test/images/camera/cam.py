@@ -1,7 +1,7 @@
 from is_wire.core import Channel,Subscription,Message
 from is_msgs.image_pb2 import Image
 import time
-from streamChannel import StreamChannel
+from utils.code.streamChannel import StreamChannel
 import numpy as np
 import cv2
 

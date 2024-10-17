@@ -1,42 +1,51 @@
-from cameraParameters import LoadCameraParameters
+from utils.code.cameraParameters import LoadCameraParameters
 import numpy as np
 import cv2
 
-expec_loc = (635, 350)
-distancia = []
-for i in range(0, 4):
-    param = LoadCameraParameters(f'src/test/calibrations/camera{i}.json', i)
+# Pasta dos Arquivos
+config_path = 'src/test/calibrations/'
+image_path = 'src/test/images/camera/'
 
-    K = param.K
-    shape = param.res
-    R = param.R
-    T = param.T
-    Xw = np.array([[0.0], [0.0], [0.0], [1.0]])
+# Parâmetros das Câmeras
+
+def LoadParameters (parameters: list = []) -> list:
+    for id in range(1, 5):
+        name = f'camera{id}'
+        json = config_path+name+'.json'
+        params = LoadCameraParameters(json, id)
+        parameters.append(params)
+        return parameters
+parameters = LoadParameters()
+
+# Transformação de cada câmera
+for id in range(1, 5):
+    name = f'camera{id}'
+    json = config_path+name+'.json'
+    params = LoadCameraParameters(json, id)
+
+    K = params.K
+    R = params.R
+    T = params.T
+
+    # Ponto esperado
+    Xw = np.array([[0.0], [0.0], [0.0], [1.0]]) 
     Rtcw = np.concatenate([R, T], axis=1)
 
     Xc = Rtcw @ Xw
     u = K @ Xc
     z = u[2]
-
     u = u / z
-
 
     # print('Xc:', Xc)
     # print('shape:', shape)
     # print('u:', u)
     # print('z:', z)
 
-    loc = (int(u[0]), int(u[1]))
+    loc = (int(u[0][0]), int(u[1][0]))
 
-    path_image = 'src/test/images/camera/image.jpg'
-    image = cv2.imread(path_image)
-    image = cv2.resize(image, (1288, 728), image)
+  
+    image = cv2.imread(image_path+name+'.jpg')
 
-    # cv2.circle(image, loc, 10, (0, 0, 255), -1)
-    # cv2.imshow('image', image)
-    # cv2.waitKey(0)
-
-    dist = np.linalg.norm(np.array(loc) - np.array(expec_loc))
-    distancia.append(dist)   
-
-print(distancia)
+    cv2.circle(image, loc, 10, (0, 0, 255), -1)
+    cv2.imshow(json, image)
+    cv2.waitKey('q')
