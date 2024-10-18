@@ -1,9 +1,7 @@
 import numpy as np
 import json
 
-
 class LoadCameraParameters:
-
     def __init__(self, calibration, cameraID): 
         camera_data = json.load(open(calibration))
         self.cameraID = cameraID
