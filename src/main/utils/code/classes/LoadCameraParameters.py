@@ -12,5 +12,4 @@ class LoadCameraParameters:
         self.R = self.tf[:3, :3]
         self.T = self.tf[:3, 3].reshape(3, 1)
         self.dis = np.array(camera_data['distortion']['doubles'])    
-        self.KRinv = np.linalg.inv(np.dot(self.K, self.R))
-        self.RinvT = np.dot(np.linalg.inv(self.R), self.T)
+        self.Rtcw = np.concatenate([self.R, self.T], axis=1)
